@@ -6,7 +6,7 @@ function Make2Darray(cols,rows,random){
       if (random==true) {
 			     arr[i][j] = randomIntFromInterval(0,5);
       }else
-        arr[i][j] =0;
+        arr[i][j] = 0;
       
 		}
 	}
@@ -14,30 +14,31 @@ function Make2Darray(cols,rows,random){
 }
 //*************************************************
 function checker(i,j,t,s){
-  /*
-  const male_or_female= t==3 || t==2;
+  let k = i-1;
+  let l = j-1;
+  const male_or_female=  t==3 || t==2;
   const leftneighbor=grid[k][l]==grid[i-1][j];
   const rightneighbor=grid[k][l]==grid[i+1][j];
   const topneighbor=grid[k][l]==grid[i][j+1];
   const bottomneighbor=grid[k][l]==grid[i][j-1];
-  */
+  
 	//this function loop in neighbor cells and check for targeted cell
 	if(i==0 ||i== cols-1 ||j==0 ||j==rows-1){
         return false;
 	}
-	for (let k = i-1; k < i+1; k+=s) {
-		for (let l = j-1; l < j+1; l+=s) {
-
-			if(grid[k][l]==t){
-        /*if((male_or_female)&&(leftneighbor||rightneighbor||topneighbor||bottomneighbor)){
-          continue
+	for (k; k <= i+1; k+=s) {
+		for (l; l <= j+1; l+=s) {
+      console.log(k,l);
+			if(grid[k][l]== t){
+        if((male_or_female)&&(leftneighbor||rightneighbor||topneighbor||bottomneighbor)){
+          return true;
 
         }
-        */
+        
 
 				//storing the the cordenites of the cell traged (needed in child production)
-                dec.i=k;
-                dec.j=l;
+        dec.i=k;
+        dec.j=l;
 				return true;
 			}		
         }
@@ -94,8 +95,9 @@ function mouseClicked(){
     let posY=Math.floor(mouseY/res);
     console.log(posX,posY);
     grid[posX][posY]= value%5;
-    console.log(grid[posX][posY]);
+    //console.log(grid[posX][posY]);
     value++;
+    redraw();
     }
     catch{}
    
@@ -116,8 +118,8 @@ for (let i = 0; i < cols; i++) {
     if(grid[i][j]==1){
 
     // checking if it has any male/female neighbors
-
-    if((checker(i,j,2,1)==true)||(checker(i,j,3,1)==true)){
+    //console.log(checker(i,j,2,1));
+    if(checker(i,j,2,1)||checker(i,j,3,1)){
      //child pass to the next genration
      next[i][j]=randomIntFromInterval(2,3);
     }
@@ -125,30 +127,14 @@ for (let i = 0; i < cols; i++) {
      //child dies
      next[i][j]=0;
     }
-    } 
-    //************check if its male**************
-    else if(grid[i][j]==2){
-    //checking for mates
-    if (checker(i,j,3,2)==true) {
-    //new child
-    //detecting the place of the mother and deciding the place of child acording to it 
-    partner_position_checker(i,j,dec.i,dec.j,child_birth);
-    
-    // gets an extra genration
-    next[i][j]=grid[i][j];
     }
-    else {
-    next[i][j]=4; }
-    
-    } 
-    
     //***********check if its female************
-    else if(grid[i][j]==3){
-      //checking if its maraid
+    else if(grid[i][j]==2){
+      //checking if its marid
       if (checker(i,j,2,2)) {
          const IsThereAChildbetweenthem= partner_position_checker(i,j,dec.i,dec.j,IsThereChild);
          if(IsThereAChildbetweenthem==true){
-       
+         next[i][j]=grid[i][j];//it servive to another genration because it has a child
          }
       }
 
@@ -161,6 +147,23 @@ for (let i = 0; i < cols; i++) {
 
 
     }
+    //************check if its male**************
+    else if(grid[i][j]==3){
+    //checking for mates
+    if (checker(i,j,3,2)) {
+    //new child
+    //detecting the place of the mother and deciding the place of child acording to it 
+    partner_position_checker(i,j,dec.i,dec.j,child_birth);
+    
+    // gets an extra genration
+    next[i][j]=grid[i][j];
+    }
+    else {
+    next[i][j]=4; }
+    
+    } 
+    
+
     //***********check if its an old************
     else if(grid[i][j]==4){
     //checking for a male/female neighbors 
@@ -183,7 +186,6 @@ for (let i = 0; i < cols; i++) {
 //*****************************
 
  function start_stop(){
- let start= document.getElementById("start");
   if(v_logic==true){
     v_logic=false;
    document.getElementById("start").value='start'
@@ -194,9 +196,22 @@ for (let i = 0; i < cols; i++) {
   }
  }
 //*****************************
+ function rest() {
+    grid=Make2Darray(cols,rows,false);
+    redraw();
+ }
+//*****************************
+function Continue(){
+
+  v_logic=true;
+  redraw();
+  v_logic=false;
+  redraw();
+}
+//*****************************
 var dec = {i:null,j:null};
 let res=50,cols,rows,x,y ;
-var grid,emptycanvas,next;
+var grid,next;
 var v_logic=false
 
 function setup(){
@@ -204,10 +219,11 @@ createCanvas(600,350);
 cols=width/res;
 rows=height/res;
 grid=Make2Darray(cols,rows,true);
-emptycanvas=Make2Darray(cols,rows,false);
+noLoop();
 }
 function draw(){
  background(255, 255, 255);
+ frameRate(30);
  for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       x=i*res;
@@ -232,12 +248,13 @@ function draw(){
     }
  }
  next =grid;
- if (v_logic==true){
+ 
+if (v_logic==true){
   logic();
- }
+ } 
 
  grid=next;
-
+  
 }
 
 
