@@ -14,35 +14,38 @@ function Make2Darray(cols,rows,random){
 }
 //*************************************************
 function checker(i,j,t,s){
-  let k = i-1;
-  let l = j-1;
+
   const male_or_female=  t==3 || t==2;
-  const leftneighbor=grid[k][l]==grid[i-1][j];
-  const rightneighbor=grid[k][l]==grid[i+1][j];
-  const topneighbor=grid[k][l]==grid[i][j+1];
-  const bottomneighbor=grid[k][l]==grid[i][j-1];
-  
-	//this function loop in neighbor cells and check for targeted cell
+	//this function loop in neighbor cells and check for targeted cell  
 	if(i==0 ||i== cols-1 ||j==0 ||j==rows-1){
         return false;
 	}
-	for (k; k <= i+1; k+=s) {
-		for (l; l <= j+1; l+=s) {
-      console.log(k,l);
-			if(grid[k][l]== t){
-        if((male_or_female)&&(leftneighbor||rightneighbor||topneighbor||bottomneighbor)){
-          return true;
+	for (let l=j-1; l <= j+1; l+=s) {
+    for (let k=i-1; k <= i+1; k+=s) {
+		
+      let leftneighbor=grid[k][l]==grid[i-1][j];
+      let rightneighbor=grid[k][l]==grid[i+1][j];
+      let topneighbor=grid[k][l]==grid[i][j+1];
+      let bottomneighbor=grid[k][l]==grid[i][j-1];
+      console.log({k,l});
+      
+			if(grid[k][l]==t){
+        console.log("found at here %d %d",k,l);
+        if((male_or_female)&&(leftneighbor||rightneighbor||topneighbor||bottomneighbor))
+          continue;
 
-        }
         
-
 				//storing the the cordenites of the cell traged (needed in child production)
         dec.i=k;
         dec.j=l;
-				return true;
-			}		
+				return true;    
+			}
+      // grid[k][l]=1;
+      // redraw()		
         }
+
 	}
+  return false;
 }
 
 
@@ -93,7 +96,7 @@ function mouseClicked(){
     try{
     let posX= Math.floor(mouseX/res);
     let posY=Math.floor(mouseY/res);
-    console.log(posX,posY);
+    //console.log(posX,posY);
     grid[posX][posY]= value%5;
     //console.log(grid[posX][posY]);
     value++;
@@ -118,7 +121,7 @@ for (let i = 0; i < cols; i++) {
     if(grid[i][j]==1){
 
     // checking if it has any male/female neighbors
-    //console.log(checker(i,j,2,1));
+    console.log(checker(i,j,2,1));
     if(checker(i,j,2,1)||checker(i,j,3,1)){
      //child pass to the next genration
      next[i][j]=randomIntFromInterval(2,3);
